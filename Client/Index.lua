@@ -39,11 +39,6 @@ end)
 local tickCounter = 1
 Client.Subscribe("Tick", function()
     for k, trigger in pairs(handledTriggers) do
-
-        for k, char in pairs(Character.GetAll()) do
-            Console.Log("Calcul de distance")
-            char:GetLocation():Distance(Vector(0,0,0))
-        end
         -- Console.Log("Launching trace creation")
         -- Trace.SphereMulti(
         --    Vector(-16020.46, 16523.13, 198),
