@@ -70,4 +70,7 @@ Client.Subscribe("Tick", function()
         end
     end
     tickCount = tickCount + 1
+    if (tickCount > 10000) then
+        tickCount = 10000
+    end
 end)
