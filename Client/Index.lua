@@ -3,6 +3,7 @@ local handledTriggers = {}
 
 local function registerDelegatedEvent(csstTrigger, sEventName, nCsstTriggerID)
     csstTrigger:Subscribe(sEventName, function(_self, ...)
+        Console.Log("Trigger event !")
         Events.CallRemote("CSST:Event", nCsstTriggerID, sEventName, ...)
     end)
 end
@@ -15,10 +16,11 @@ local function handleNativeCall(nCsstTriggerID, sNativeFunction, ...)
 end
 
 Events.SubscribeRemote("CSST:START_TRIGGER", function(nCsstTriggerID, tTriggerParams, tNativeCallStack)
-    Console.Log("Received start trigger")
+    Console.Log("Received start trigger params"..NanosTable.Dump(tTriggerParams))
+    Console.Log("Received start trigger callst"..NanosTable.Dump(tNativeCallStack))
     handledTriggers[nCsstTriggerID] = Trigger(table.unpack(tTriggerParams))
 
-    Console.Log("Handled triggers "..NanosTable.Dump(handledTriggers))
+    -- Console.Log("Handled triggers "..NanosTable.Dump(handledTriggers))
     local csstTrigger = handledTriggers[nCsstTriggerID]
     registerDelegatedEvent(csstTrigger, "BeginOverlap", nCsstTriggerID)
     registerDelegatedEvent(csstTrigger, "EndOverlap", nCsstTriggerID)
@@ -35,24 +37,12 @@ Events.SubscribeRemote("CSST:STOP_TRIGGER", function(nCsstTriggerID)
     end
 end)
 
--- TODO: Move that to CSST_SphereTrace
-local tickCounter = 1
-Client.Subscribe("Tick", function()
-    for k, trigger in pairs(handledTriggers) do
-        -- Console.Log("Launching trace creation")
-        -- Trace.SphereMulti(
-        --    Vector(-16020.46, 16523.13, 198),
-        --    Vector(-16020.46, 16523.13, 198),
-        --    -- Vector(-17011.80, 16471, 198),
-        --    3000.0,
-        --    CollisionChannel.Pawn,
-        --    -- TraceMode.DrawDebug | TraceMode.ReturnEntity
-        --    TraceMode.ReturnEntity
-        -- )
-    end
-    tickCounter = tickCounter + 1
-    if (tickCounter > 10000) then
-        tickCounter = 1
-    end
-end
-)
+-- Package.Require("./CSSTT.lua")
+--CSSTT_Sphere(
+--    Vector(-16833.05, 14274, 198),
+--    Vector(-16833.05, 14274, 198),
+--    200,
+--    CollisionChannel.Pawn,
+--    {},
+--    1
+-- )

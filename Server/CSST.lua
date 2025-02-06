@@ -1,7 +1,7 @@
 --- Client Side Synced Triggers
 ---
 --- Allows to create triggers on the server side that will be computed on the client side
-CSST = BaseClass.Inherit("CSST")
+CSST = CSST_Base.Inherit("CSST")
 
 --- TODO: Now we must keep in track of the overlapped entities so we can
 --- TODO: Discard duplicates begin overlaps on network authority switch
@@ -15,10 +15,16 @@ CSST = BaseClass.Inherit("CSST")
 ---@param bDebugDraw boolean
 ---@param eDebugColor Color
 function CSST:Constructor(vLocation, rRotation, eTriggerType, vfExtent, bDebugDraw, eDebugColor, tOverlapOnlyClasses)
-    self.triggerParams = {vLocation, rRotation, eTriggerType, vfExtent, bDebugDraw, eDebugColor, tOverlapOnlyClasses}
-    self.authority = nil
+    self:Super().Constructor(self, {
+        vLocation,
+        rRotation,
+        eTriggerType,
+        vfExtent,
+        bDebugDraw,
+        eDebugColor,
+        tOverlapOnlyClasses
+    })
 
-    self.subscribedEvents = {}
     --- {name = sFunctionName, params = {}}
     self.nativeCallStack = {} -- History of native function called to be replayed on the client on authority switch
 
@@ -79,12 +85,7 @@ function CSST:Constructor(vLocation, rRotation, eTriggerType, vfExtent, bDebugDr
     self.SetVisibility = CSST._registerNativeCall(self, "SetVisibility")
     self.TranslateTo = CSST._registerNativeCall(self, "TranslateTo")
     self.WasRecentlyRendered = CSST._unregisteredNativeFunction(self, "WasRecentlyRendered")
-
-    -- On entity destroy. When an overlapped entity gets destroyed
-    self.OnEntityDestroy = function(entity)
-    end
 end
-
 
 function CSST:SetNetworkAuthority(authority)
     if (authority == self.authority) then
@@ -151,98 +152,29 @@ function CSST:_HandleEvent(sEventName, varg1, ...)
     -- self:_Log("Handing event "..sEventName.. "for "..NanosTable.Dump(aFirstEventParam))
     local fCallback = self.subscribedEvents[sEventName]
     if (fCallback) then
+        Console.Log("Call back called"..NanosTable.Dump(aFirstEventParam))
         fCallback(self, aFirstEventParam, ...)
-    end
-end
-
-function CSST:_StartClientSideTriggerHandling()
-    -- self:_Log("Starting clientside handling")
-    Events.CallRemote("CSST:START_TRIGGER",
-        self.authority,
-        self:GetID(),
-        self.triggerParams,
-        self.nativeCallStack
-    )
-end
-
-function CSST:_StopClientSideTriggerHandling()
-    if (self.authority:IsValid()) then
-        -- self:_Log("Stopping clientside handling")
-        Events.CallRemote("CSST:STOP_TRIGGER", self.authority, self:GetID())
-    end
-end
-
-function CSST:_ClearOverlapsOnNoAuthorithy()
-    local fEndOverlapCallback = self.subscribedEvents["EndOverlap"]
-    if (not fEndOverlapCallback) then
-        return
-    end
-
-    for k, v in pairs(self.tOverlappingEntities) do
-        if (self.tOverlappingEntities[k]) then
-            self:_HandleEvent("EndOverlap", k)
-        end
-        --fEndOverlapCallback(self, k)
-        -- self.tOverlappingEntities[k] = false
     end
 end
 
 function CSST:HandleEntityDestroyed()
     return function (entity)
         if (self.tOverlappingEntities[entity]) then
-            self:_Log("Destroying entity, scanning CSST. Was overlapping : "..NanosTable.Dump(entity))
+            self:Super():_Log("Destroying entity, scanning CSST. Was overlapping : "..NanosTable.Dump(entity))
             self:_HandleEvent("EndOverlap", entity)
         end
     end
 end
 
-function CSST:Destroy()
-    self:_StopClientSideTriggerHandling()
-end
-
-function CSST:Subscribe(sEventName, fCallback)
-    self.subscribedEvents[sEventName] = fCallback
-end
-
-function CSST:Unsubscribe(sEventName)
-    self.subscribedEvents[sEventName] = nil
-end
-
-function CSST:_NativeCall(sNativeFunction, ...)
-    self.nativeCallStack[#self.nativeCallStack+1] = {
-        name = sNativeFunction,
-        params = table.pack(...)
-    }
-
-    if (self.authority) then
-        Events.CallRemote("CSST:NATIVE_CALL", self.authority, self:GetID(), sNativeFunction, ...)
-    end
-end
-
-function CSST._registerNativeCall(self, sNativeFunction)
-    return function(_s, ...)
-        self._NativeCall(self, sNativeFunction, ...)
-    end
-end
-
-function CSST._unregisteredNativeFunction(self, sNativeFunction)
-    return function(_s, ...)
-        self:_Warn("Attempt to call native "..sNativeFunction.." but this native is not supported by CSST on the server. If you need this function, use proper server triggers")
-    end
-end
-
-function CSST:_Log(message)
-    Console.Log("CSST #"..self:GetID().." : "..message)
-end
-
-function CSST:_Warn(message)
-    Console.Warn("CSST #"..self:GetID().." : "..message)
+function CSST:Destrutor()
+    self:Super().Destructor(self)
 end
 
 Events.SubscribeRemote("CSST:Event", function(player, nCsstTriggerID, sEventName, ...)
     local csstInstance = CSST.GetByID(nCsstTriggerID)
     if (csstInstance) then
         if (player:IsValid() and player == csstInstance.authority) then
+            Console.Log("Found trigger event :")
             csstInstance:_HandleEvent(sEventName, ...)
         end
     end
