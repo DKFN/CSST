@@ -23,18 +23,18 @@ end
 
 function CSSTT_Sphere:Main(tickCount)
     local traceDrawMode
-    if (tickCount % 400) then 
-        traceDrawMode = self.collisionChannel | TraceMode.DrawDebug
+    if (tickCount % 290 == 0) then 
+        traceDrawMode = self.traceMode | TraceMode.DrawDebug
     else
-        traceDrawMode = self.collisionChannel
+        traceDrawMode = self.traceMode
     end
 
     local traceResult = Trace.SphereMulti(
         self.startLocation,
         self.endLocation,
         self.radius,
+        self.collisionChannel,
         traceDrawMode,
-        self.traceMode,
         self.ignored_actors
     )
 
@@ -47,14 +47,14 @@ function CSSTT_Sphere:Main(tickCount)
             tNextOverlappingEntitiesSeq[#tNextOverlappingEntitiesSeq+1] = entity
             tNextOverlappingEntitiesHash[entity] = entity
             if (not self.tOverlappingEntitiesHash[entity]) then
-                Console.Log("Entity started overlapping")
+                Chat.AddMessage("Entity started overlapping")
             end
         end
     end
 
     for k, v in pairs(self.overlappingEntitiesSeq) do
         if (not tNextOverlappingEntitiesHash[v]) then
-            Console.Log("Entity overlapping has stopped")
+            Chat.AddMessage("Entity overlapping has stopped")
         end
     end
     self.overlappingEntitiesSeq = tNextOverlappingEntitiesSeq

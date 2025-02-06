@@ -83,3 +83,29 @@ function CSST_Base:_ClearOverlapsOnNoAuthorithy()
     end
 end
 
+function CSST_Base:SetNetworkAuthority(authority)
+    if (authority == self.authority) then
+        return
+    end
+    -- Console.Log("Switching network authority")
+    if (self.authority) then
+        self:_StopClientSideTriggerHandling()
+    end
+    
+    -- Console.Log("Stop ok")
+    self.authority = authority
+    -- Console.Log("Assignation ok"..NanosTable.Dump(authority))
+    if (self.authority) then
+        -- Console.Log("Starting traces")
+        self:_StartClientSideTriggerHandling()
+    end
+
+    if (not self.authority) then
+        self:_ClearOverlapsOnNoAuthorithy()
+    end
+end
+
+
+function CSST_Base:GetNetworkAuthority()
+    return self.authority
+end

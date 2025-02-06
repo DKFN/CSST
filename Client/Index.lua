@@ -37,12 +37,12 @@ Events.SubscribeRemote("CSST:STOP_TRIGGER", function(nCsstTriggerID)
     end
 end)
 
--- Package.Require("./CSSTT.lua")
---CSSTT_Sphere(
---    Vector(-16833.05, 14274, 198),
---    Vector(-16833.05, 14274, 198),
---    200,
---    CollisionChannel.Pawn,
---    {},
---    1
--- )
+Package.Require("./CSSTT.lua")
+CSSTT_Sphere(
+    Vector(-16833.05, 14274, 198),
+    Vector(-16833.05, 14274, 198),
+    200,
+    CollisionChannel.Pawn,
+    {},
+    1
+)

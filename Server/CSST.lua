@@ -87,28 +87,6 @@ function CSST:Constructor(vLocation, rRotation, eTriggerType, vfExtent, bDebugDr
     self.WasRecentlyRendered = CSST._unregisteredNativeFunction(self, "WasRecentlyRendered")
 end
 
-function CSST:SetNetworkAuthority(authority)
-    if (authority == self.authority) then
-        return
-    end
-    -- Console.Log("Switching network authority")
-    if (self.authority) then
-        self:_StopClientSideTriggerHandling()
-    end
-    
-    -- Console.Log("Stop ok")
-    self.authority = authority
-    -- Console.Log("Assignation ok"..NanosTable.Dump(authority))
-    if (self.authority) then
-        -- Console.Log("Starting traces")
-        self:_StartClientSideTriggerHandling()
-    end
-
-    if (not self.authority) then
-        self:_ClearOverlapsOnNoAuthorithy()
-    end
-end
-
 function CSST:GetNetworkAuthority()
     return self.authority
 end
