@@ -25,14 +25,6 @@ function CSST:Constructor(vLocation, rRotation, eTriggerType, vfExtent, bDebugDr
         tOverlapOnlyClasses
     })
 
-    --- {name = sFunctionName, params = {}}
-    self.nativeCallStack = {} -- History of native function called to be replayed on the client on authority switch
-
-    --- Indexed by entityId and if it is overlapping
-    self.tOverlappingEntities = {
-
-    }
-
     -- Native calls
 
     -- Trigger class
@@ -87,72 +79,12 @@ function CSST:Constructor(vLocation, rRotation, eTriggerType, vfExtent, bDebugDr
     self.WasRecentlyRendered = CSST._unregisteredNativeFunction(self, "WasRecentlyRendered")
 end
 
-function CSST:GetNetworkAuthority()
-    return self.authority
-end
-
-local table_pack = table.pack
-function CSST:_HandleEvent(sEventName, varg1, ...)
-    local discardEvent = false
-    local aFirstEventParam = varg1
-
-    --if (aFirstEventParam and aFirstEventParam.IsValid and not aFirstEventParam:IsValid()) then
-     --   discardEvent = true
-    --end
-
-    local fDestructionHandler = function(entity)
-        self:_HandleEvent("EndOverlap", entity)
-    end
-    
-    if (sEventName == "BeginOverlap" and aFirstEventParam) then
-        local bOverlappingStatusEntity = self.tOverlappingEntities[aFirstEventParam]
-        if (bOverlappingStatusEntity) then
-            discardEvent = true
-        else
-            self.tOverlappingEntities[aFirstEventParam] = true
-            aFirstEventParam:Subscribe("Destroy", fDestructionHandler)
-        end
-    end
-
-    if (sEventName == "EndOverlap" and aFirstEventParam) then
-        local bOverlappingStatusEntity = self.tOverlappingEntities[aFirstEventParam]
-        if (bOverlappingStatusEntity) then
-            self.tOverlappingEntities[aFirstEventParam] = false
-            aFirstEventParam:Unsubscribe("Destroy", fDestructionHandler)
-        end
-    end
-
-    if (discardEvent) then
-        return
-    end
-
-    
-    -- self:_Log("Handing event "..sEventName.. "for "..NanosTable.Dump(aFirstEventParam))
-    local fCallback = self.subscribedEvents[sEventName]
-    if (fCallback) then
-        Console.Log("Call back called"..NanosTable.Dump(aFirstEventParam))
-        fCallback(self, aFirstEventParam, ...)
-    end
-end
-
-function CSST:HandleEntityDestroyed()
-    return function (entity)
-        if (self.tOverlappingEntities[entity]) then
-            self:Super():_Log("Destroying entity, scanning CSST. Was overlapping : "..NanosTable.Dump(entity))
-            self:_HandleEvent("EndOverlap", entity)
-        end
-    end
-end
-
-function CSST:Destrutor()
-    self:Super().Destructor(self)
-end
 
 Events.SubscribeRemote("CSST:Event", function(player, nCsstTriggerID, sEventName, ...)
     local csstInstance = CSST.GetByID(nCsstTriggerID)
     if (csstInstance) then
         if (player:IsValid() and player == csstInstance.authority) then
-            Console.Log("Found trigger event :")
+            Console.Log("Found trigger Instance :"..NanosTable.Dump(csstInstance))
             csstInstance:_HandleEvent(sEventName, ...)
         end
     end
