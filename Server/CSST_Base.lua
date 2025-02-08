@@ -130,7 +130,7 @@ function CSST_Base:_HandleEvent(sEventName, varg1, ...)
     end
 
     local fDestructionHandler = function(entity)
-        Console.Log("Destroying entity"..NanosTable.Dump(entity))
+        -- Console.Log("Destroying entity"..NanosTable.Dump(entity))
         -- self:_Log("Destroying entity, scanning CSST. Was overlapping : "..NanosTable.Dump(entity))
         self:_HandleEvent("EndOverlap", entity)
     end

@@ -4,7 +4,6 @@ Package.Require("./CSSTT.lua")
 
 local function registerDelegatedEvent(csstTrigger, sEventName, nCsstTriggerID)
     csstTrigger:Subscribe(sEventName, function(_self, ...)
-        Console.Log("Trigger event !")
         Events.CallRemote("CSST:Event:0", nCsstTriggerID, sEventName, ...)
     end)
 end
@@ -52,13 +51,3 @@ Events.SubscribeRemote("CSST:STOP_TRIGGER", function(nCsstTriggerID)
         maybeHandledTrigger:Destroy()
     end
 end)
-
--- CSSTT_Sphere(
---    0,
---    Vector(-16833.05, 14274, 198),
---    Vector(-16833.05, 14274, 198),
---    200,
---    CollisionChannel.Pawn,
---    {},
---    1
--- )

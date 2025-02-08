@@ -1,10 +1,10 @@
 # Client Side Synced Triggers
 
-CSST is a package that aims to allow you to use Triggers in the Server without the computational cost of a serverside Trigger.
+CSST (Client Side Synced Trigger) is a package that aims to allow you to use Triggers in the Server without the computational cost of a serverside Trigger.
 
 This of course comes with tradeoffs, but it hopefully offers a drop-in replacement for use cases that can tolerate network delays and will leave more room on the server for Triggers that require speed and precision.
 
-CSST comes also with CSSTT, an alternative implementation of Triggers that can help you acheive great performance gains with additionnal tradeoffs (nothing is free! :D).
+CSST comes also with CSSTT (Client Side Synced Trigger Trace), an alternative implementation of Triggers that can help you acheive great performance gains with additionnal tradeoffs (nothing is free! :D).
 
 CSST was developped for the needs of [NACT](https://github.com/DKFN/NACT) but aims to cover your needs too. Feel free to contribute to the project !
 
