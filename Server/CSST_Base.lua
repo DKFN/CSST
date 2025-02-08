@@ -1,8 +1,9 @@
 
 CSST_Base = BaseClass.Inherit("CSST_Base")
 
-function CSST_Base:Constructor(triggerParams)
+function CSST_Base:Constructor(nTriggerType, triggerParams)
     self.subscribedEvents = {}
+    self.triggerType = nTriggerType
     self.triggerParams = triggerParams
     self.authority = nil
 
@@ -61,9 +62,10 @@ end
 
 
 function CSST_Base:_StartClientSideTriggerHandling()
-    self:_Log("Starting clientside handling")
+    -- self:_Log("Starting clientside handling")
     Events.CallRemote("CSST:START_TRIGGER",
         self.authority,
+        self.triggerType,
         self:GetID(),
         self.triggerParams,
         self.nativeCallStack
@@ -123,15 +125,18 @@ function CSST_Base:_HandleEvent(sEventName, varg1, ...)
     local discardEvent = false
     local aFirstEventParam = varg1
 
-    --if (aFirstEventParam and aFirstEventParam.IsValid and not aFirstEventParam:IsValid()) then
-     --   discardEvent = true
-    --end
+    if (not aFirstEventParam or (aFirstEventParam.IsValid and not aFirstEventParam:IsValid())) then
+       discardEvent = true
+    end
 
     local fDestructionHandler = function(entity)
+        Console.Log("Destroying entity"..NanosTable.Dump(entity))
+        -- self:_Log("Destroying entity, scanning CSST. Was overlapping : "..NanosTable.Dump(entity))
         self:_HandleEvent("EndOverlap", entity)
     end
     
-    if (sEventName == "BeginOverlap" and aFirstEventParam) then
+    if (sEventName == "BeginOverlap") then
+        -- Console.Log("Begin overlap for entity "..NanosTable.Dump(aFirstEventParam))
         local bOverlappingStatusEntity = self.tOverlappingEntities[aFirstEventParam]
         if (bOverlappingStatusEntity) then
             discardEvent = true
@@ -141,8 +146,9 @@ function CSST_Base:_HandleEvent(sEventName, varg1, ...)
         end
     end
 
-    if (sEventName == "EndOverlap" and aFirstEventParam) then
+    if (sEventName == "EndOverlap") then
         local bOverlappingStatusEntity = self.tOverlappingEntities[aFirstEventParam]
+        -- Console.Log("End overlap for entity "..NanosTable.Dump(aFirstEventParam))
         if (bOverlappingStatusEntity) then
             self.tOverlappingEntities[aFirstEventParam] = false
             aFirstEventParam:Unsubscribe("Destroy", fDestructionHandler)
@@ -157,7 +163,7 @@ function CSST_Base:_HandleEvent(sEventName, varg1, ...)
     -- self:_Log("Handing event "..sEventName.. "for "..NanosTable.Dump(aFirstEventParam))
     local fCallback = self.subscribedEvents[sEventName]
     if (fCallback) then
-        Console.Log("Call back called"..NanosTable.Dump(aFirstEventParam))
+        -- Console.Log("Call back called "..sEventName.. "For : ".. NanosTable.Dump(aFirstEventParam))
         fCallback(self, aFirstEventParam, ...)
     end
 end
@@ -165,13 +171,7 @@ end
 function CSST_Base:HandleEntityDestroyed()
     return function (entity)
         if (self.tOverlappingEntities[entity]) then
-            self:Super():_Log("Destroying entity, scanning CSST. Was overlapping : "..NanosTable.Dump(entity))
             self:_HandleEvent("EndOverlap", entity)
         end
     end
 end
-
-function CSST:Destrutor()
-    self:Super().Destructor(self)
-end
-

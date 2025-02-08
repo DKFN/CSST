@@ -48,7 +48,8 @@ CSSTT is anorther implementation of Triggers that relies on Traces instead of Tr
 
 The most powerful feature of CSSTT compared to CSST or Triggers is that you can skip ticks for overlap checkings, this is ideal if you do not need a super-precise Trigger and can help save a lot of calculations of the client side.
 
-Additionally, Traces perform on average 30-50% faster on the client than Triggers.
+CSSTTs overlap checks are twice slowers than clientside triggers. However, the ability to skip ticks
+make a very interesting tradeoff option.
 
 However, be aware that CSSTT are not Actors on the client side ! Thus, only a few functions are available. But again, if your use case meets the tradeoffs, CSSTTs are a powerful alternative in trigger heavy code.
 

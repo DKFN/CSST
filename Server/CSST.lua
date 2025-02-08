@@ -15,7 +15,7 @@ CSST = CSST_Base.Inherit("CSST")
 ---@param bDebugDraw boolean
 ---@param eDebugColor Color
 function CSST:Constructor(vLocation, rRotation, eTriggerType, vfExtent, bDebugDraw, eDebugColor, tOverlapOnlyClasses)
-    self:Super().Constructor(self, {
+    self:Super().Constructor(self, 0, {
         vLocation,
         rRotation,
         eTriggerType,
@@ -79,12 +79,17 @@ function CSST:Constructor(vLocation, rRotation, eTriggerType, vfExtent, bDebugDr
     self.WasRecentlyRendered = CSST._unregisteredNativeFunction(self, "WasRecentlyRendered")
 end
 
+function CSST:Destrutor()
+    self:Super().Destructor(self)
+end
 
-Events.SubscribeRemote("CSST:Event", function(player, nCsstTriggerID, sEventName, ...)
+-- Causes "Failed to get environment from Lua stack! Did you call a function as tail call"
+-- local _GetById = CSST.GetByID
+Events.SubscribeRemote("CSST:Event:0", function(player, nCsstTriggerID, sEventName, ...)
     local csstInstance = CSST.GetByID(nCsstTriggerID)
     if (csstInstance) then
         if (player:IsValid() and player == csstInstance.authority) then
-            Console.Log("Found trigger Instance :"..NanosTable.Dump(csstInstance))
+            -- Console.Log("Found trigger Instance :"..NanosTable.Dump(csstInstance))
             csstInstance:_HandleEvent(sEventName, ...)
         end
     end
