@@ -8,7 +8,10 @@ CSST comes also with CSSTT (Client Side Synced Trigger Trace), an alternative im
 
 CSST was developped for the needs of [NACT](https://github.com/DKFN/NACT) but aims to cover your needs too. Feel free to contribute to the project !
 
-However, be aware that for the time being my main focus is NACT alpha version. As such, some stuff are partially implemented only to answer the needs of NACT (especially in CSSTTs)
+However, be aware that for the time being my main focus is NACT alpha version. As such, some stuff are partially 
+implemented only to answer the needs of NACT (especially in CSSTTs)
+
+CSST uses [ClassLib](https://github.com/Timmy-the-nobody/ClassLib) from [Timmy](https://github.com/Timmy-the-nobody)
 
 ```
 I STRONGLY recommend to NOT use this lib before having higher performance needs for Triggers.
@@ -17,7 +20,6 @@ Remember, CSST will never be as easy, stable and complete as the NanosWorld trig
 
 Save yourself the headaches for when they are needed, not early in your project ! :)
 ```
-
 
 # API
 ## CSST
