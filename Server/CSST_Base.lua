@@ -86,8 +86,15 @@ function CSST_Base:_ClearOverlapsOnNoAuthorithy()
     end
 
     for k, v in pairs(self.tOverlappingEntities) do
-        if (self.tOverlappingEntities[k]) then
-            self:_HandleEvent("EndOverlap", k)
+        if (v) then
+            -- This code is here to mitigate a recent nanos change triggering
+            -- Lua stack not found error in destroy when, and only when the player disconnects
+            -- To be investigated, for now, this does the trick temporarly
+            if (k and k:IsValid()) then
+                self:_HandleEvent("EndOverlap", k)
+            else
+                self.tOverlappingEntities[k] = false
+            end
         end
         --fEndOverlapCallback(self, k)
         -- self.tOverlappingEntities[k] = false
