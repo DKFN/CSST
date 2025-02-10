@@ -25,8 +25,6 @@ function CSSTT_Sphere:Constructor(
     -- Natives handling
     self.attachedEntity = nil
 
-    Console.Log("check every value "..NanosTable.Dump(self.checkEvery))
-
     self.tickSpreadValue = self:GetID() % self.checkEvery
 
     self.overlappingEntitiesSeq = {}
@@ -91,7 +89,7 @@ local tickCount = 0
 Client.Subscribe("Tick", function()
     for k, sphereTrigger in _ipairs(_getall()) do
         if (tickCount % (sphereTrigger.checkEvery + sphereTrigger.tickSpreadValue) == 0) then
-            sphereTrigger:Main(tickCount)
+            _main(sphereTrigger, tickCount)
         end
     end
     tickCount = tickCount + 1
@@ -99,10 +97,3 @@ Client.Subscribe("Tick", function()
         tickCount = 0
     end
 end)
-
-local e = {
-    a = 1,
-    b = 2
-}
-
-Console.Log(e.a + e.b)

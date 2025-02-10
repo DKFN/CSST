@@ -15,6 +15,12 @@ function CSST_Base:Constructor(nTriggerType, triggerParams)
 
     }
 
+    self.destructionHandler = function(entity)
+        -- Console.Log("Destroying entity"..NanosTable.Dump(entity))
+        -- self:_Log("Destroying entity, scanning CSST. Was overlapping : "..NanosTable.Dump(entity))
+        self:_HandleEvent("EndOverlap", entity)
+    end
+
 end
 
 function CSST_Base:Destroy()
@@ -87,14 +93,7 @@ function CSST_Base:_ClearOverlapsOnNoAuthorithy()
 
     for k, v in pairs(self.tOverlappingEntities) do
         if (v) then
-            -- This code is here to mitigate a recent nanos change triggering
-            -- Lua stack not found error in destroy when, and only when the player disconnects
-            -- To be investigated, for now, this does the trick temporarly
-            if (k and k:IsValid()) then
-                self:_HandleEvent("EndOverlap", k)
-            else
-                self.tOverlappingEntities[k] = false
-            end
+            self:_HandleEvent("EndOverlap", k)
         end
         --fEndOverlapCallback(self, k)
         -- self.tOverlappingEntities[k] = false
@@ -135,12 +134,6 @@ function CSST_Base:_HandleEvent(sEventName, varg1, ...)
     if (not aFirstEventParam or (aFirstEventParam.IsValid and not aFirstEventParam:IsValid())) then
        discardEvent = true
     end
-
-    local fDestructionHandler = function(entity)
-        -- Console.Log("Destroying entity"..NanosTable.Dump(entity))
-        -- self:_Log("Destroying entity, scanning CSST. Was overlapping : "..NanosTable.Dump(entity))
-        self:_HandleEvent("EndOverlap", entity)
-    end
     
     if (sEventName == "BeginOverlap") then
         -- Console.Log("Begin overlap for entity "..NanosTable.Dump(aFirstEventParam))
@@ -149,7 +142,7 @@ function CSST_Base:_HandleEvent(sEventName, varg1, ...)
             discardEvent = true
         else
             self.tOverlappingEntities[aFirstEventParam] = true
-            aFirstEventParam:Subscribe("Destroy", fDestructionHandler)
+            aFirstEventParam:Subscribe("Destroy", self.destructionHandler)
         end
     end
 
@@ -158,7 +151,9 @@ function CSST_Base:_HandleEvent(sEventName, varg1, ...)
         -- Console.Log("End overlap for entity "..NanosTable.Dump(aFirstEventParam))
         if (bOverlappingStatusEntity) then
             self.tOverlappingEntities[aFirstEventParam] = false
-            aFirstEventParam:Unsubscribe("Destroy", fDestructionHandler)
+            if (aFirstEventParam and not aFirstEventParam:IsBeingDestroyed()) then
+                aFirstEventParam:Unsubscribe("Destroy", self.destructionHandler)
+            end
         end
     end
 
