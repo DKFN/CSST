@@ -141,8 +141,10 @@ function CSST_Base:_HandleEvent(sEventName, varg1, ...)
         if (bOverlappingStatusEntity) then
             discardEvent = true
         else
-            self.tOverlappingEntities[aFirstEventParam] = true
-            aFirstEventParam:Subscribe("Destroy", self.destructionHandler)
+            if (aFirstEventParam) then
+                self.tOverlappingEntities[aFirstEventParam] = true
+                aFirstEventParam:Subscribe("Destroy", self.destructionHandler)
+            end
         end
     end
 
