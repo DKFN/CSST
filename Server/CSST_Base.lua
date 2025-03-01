@@ -79,7 +79,7 @@ function CSST_Base:_StartClientSideTriggerHandling()
 end
 
 function CSST_Base:_StopClientSideTriggerHandling()
-    if (self.authority:IsValid()) then
+    if (self.authority and self.authority:IsValid()) then
         -- self:_Log("Stopping clientside handling")
         Events.CallRemote("CSST:STOP_TRIGGER", self.authority, self:GetID())
     end
